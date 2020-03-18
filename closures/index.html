@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Closures</title>
+  </head>
+  <body>
+    <h1>Closures</h1>
+    <span>What Is Closure?</span>
+    <ul>
+      <li>
+        A Closure is an inner function that has access to the outer functions's
+        variables in addition to its own variables and global variables.
+      </li>
+      <li>
+        The inner function has access not only to the outer function's variables
+        but also to the outer function's parameters.
+      </li>
+      <li>
+        You can create a Closure by adding a function inside another function.
+      </li>
+      <li>
+        Closures are frequently used in JavaScript for object data privacy, in
+        event handlers, callback functions, in partial applications, currying
+        and other functional programming patterns.
+      </li>
+      <li>
+        A Closure is the combination of a function, bundled together (enclosed)
+        with reference to its surrounding state(the lexical environment).
+      </li>
+      <li>
+        A Closure gives you access to an outer function's scope from an inner
+        function.
+      </li>
+      <li>
+        In JavaScript Closures are created everytime a function is created, at
+        function creation time.
+      </li>
+      <li>
+        To use a Closure, define a function inside another function and expose
+        it. To expose a function, return it or pass it to another function.
+      </li>
+      <li>
+        The inner function will have access to the variablesin the outer
+        function scope, even after the outer function has returned.
+      </li>
+    </ul>
+    <span>Uses Of Closure</span>
+    <ul>
+      <li>
+        In JavaScript, Closures are the privacy mechanism used to enable data
+        privacy.
+      </li>
+      <li>
+        When you used Closure for data privacy, the enclosed variables are only
+        in scope within the containing (outer)function. You can't get all the
+        data from an outside scope except through the object's
+        <strong>Privileged Methods</strong>
+      </li>
+      <li>
+        In JavaScript any exposed method defined within the Closure scope is
+        privileged.
+      </li>
+    </ul>
+    <div id="code"></div>
+    <script src="main.js"></script>
+  </body>
+</html>

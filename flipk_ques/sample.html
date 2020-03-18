@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+
+    <!-- CSS property to place div 
+            side by side -->
+    <style>
+      .product-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        max-width: 60vw;
+      }
+      .left-product {
+        float: left;
+        background: #ffd632;
+        margin: 0 40px 40px 40px;
+      }
+      .right-product {
+        float: right;
+        background: #ffd632;
+        margin: 0 0 40px 40px;
+      }
+      img {
+        max-width: 350px;
+        padding-left: 70px;
+        padding-top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root">
+      <h2>Products</h2>
+      <h2 id="total">Total Price Is : 0</h2>
+      <div id="products_list"></div>
+    </div>
+
+    <script>
+      var selectedBundleDetails = [];
+
+      var totalPrice = 0;
+      let productFetchUrl =
+        "https://rapidload.increasingly.co/increasingly_bundles?irb/cHJvZHVjdF9pZHM9MzEwMDEwNjEzJmNhdGVnb3J5X2lkPSZhcGlfa2V5PWRURVBqQiZjbGllbnRfaWQ9Jm9yZGVyX2lkPSZwYWdlX3R5cGU9Y2F0YWxvZ19wcm9kdWN0X3ZpZXcmY2xpZW50X3Zpc2l0b3JfaWQ9ZTU2ZjU2MzM3YzYwYTliNjAxNzAzOGJkZTY4N2M5NjdmMzhjMzNjZTM5Jm5wYj0y";
+
+      let products = fetchData(productFetchUrl);
+      async function fetchData(url) {
+        fetch(url)
+          .then(function(response) {
+            return response.json();
+          })
+          .then(function(productBundles) {
+            handleProductsFetch(productBundles);
+          });
+      }
+
+      function handleProductsFetch(productBundles) {
+        buildProductList(productBundles.Bundles);
+      }
+
+      function buildProductList(productsList) {
+        let rootElement = document.getElementById("root");
+        let porducutListContainer = document.getElementById("products_list");
+        for (let i = 0; i < productsList.length; i++) {
+          let productRow = buildProductRow(
+            productsList[i],
+            productSelectClickHandler
+          );
+          if (productRow) {
+            porducutListContainer.appendChild(productRow);
+          }
+        }
+        rootElement.appendChild(porducutListContainer);
+      }
+
+      function buildProductRow(products, productSelectClickHandler) {
+        var productsRow = document.createElement("div");
+        productsRow.className = "product-row";
+
+        for (let i = 0; i < products.Products.length; i++) {
+          //let productBlockParams = {}
+          let className = i == 0 ? "left-product" : "right-product";
+          let productContainer = buildProductBlock(
+            products.Products[i],
+            productSelectClickHandler,
+            className
+          );
+          productsRow.appendChild(productContainer);
+        }
+
+        // var bundlePriceElement = document.createElement("span");
+        // prodPrice.id = "bundle_price_" + products.BundleID;
+        // prodPrice.className = "product-price";
+        // prodPrice.innerHTML = product.Price;
+        // products_container.appendChild(prodPrice);
+
+        return productsRow;
+      }
+
+      function buildProductBlock(
+        product,
+        productSelectClickHandler,
+        classBase
+      ) {
+        var products_container = document.createElement("div");
+        products_container.className = classBase;
+        products_container.id = "products_container";
+        document.getElementById("root").appendChild(products_container);
+
+        var prodImg = document.createElement("img");
+        prodImg.src = product.ImageURL;
+        products_container.appendChild(prodImg);
+
+        var prodTitle = document.createElement("h4");
+        prodTitle.innerHTML = product.ProductName;
+        products_container.appendChild(prodTitle);
+
+        var prodPrice = document.createElement("span");
+        prodPrice.id = "price_" + product.ProductId;
+        prodPrice.className = "product-price";
+        prodPrice.innerHTML = product.Price;
+        products_container.appendChild(prodPrice);
+
+        var add_check = document.createElement("input");
+        add_check.type = "checkbox";
+        add_check.id = product.ProductId;
+        add_check.onclick = productSelectClickHandler;
+        products_container.appendChild(add_check);
+        return products_container;
+      }
+
+      function productSelectClickHandler(event) {
+        let clickedElement = event.srcElement;
+        // Total price
+        calculateTotalPrice(clickedElement);
+
+        // Bundle price
+        // Take the parent of the product element
+        let productBundleParentElement = clickedElement;
+        while (true) {
+          if (
+            productBundleParentElement.className.includes("product-row") ||
+            productBundleParentElement.id == "root"
+          ) {
+            break;
+          }
+          productBundleParentElement = productBundleParentElement.parentElement;
+        }
+        if (productBundleParentElement.className.includes("product-row")) {
+          calculateBundlePrice(productBundleParentElement);
+        }
+      }
+
+      function calculateBundlePrice(selectedBundleProductElement) {
+        if (selectedBundleProductElement.hasChildNodes()) {
+          var children = selectedBundleProductElement.childNodes;
+          var bundlePrice = 0;
+          let checkBoxes = [];
+          for (var i = 0; i < children.length; i++) {
+            let elements = getAllChilds(children[i]);
+            for (var j = 0; j < elements.length; j++) {
+              let element = elements[j];
+              if (element.type == "checkbox") {
+                checkBoxes.push(element);
+              }
+            }
+          }
+          for (let i = 0; i < checkBoxes.length; i++) {
+            let price = parseFloat(
+              document.getElementById("price_" + checkBoxes[i].id).textContent
+            );
+            if (checkBoxes[i].checked) {
+              bundlePrice += price;
+            } else {
+              if (bundlePrice > 0) {
+                bundlePrice -= price;
+              }
+            }
+          }
+          // Set this bundle price to html element
+          console.log("bundle price ", bundlePrice);
+        }
+      }
+
+      function calculateTotalPrice(selectedproductElement) {
+        var checkBox = selectedproductElement;
+        var checkBoxID = selectedproductElement.id;
+        var price = parseFloat(
+          document.getElementById("price_" + checkBoxID).textContent
+        );
+
+        if (checkBox.checked) {
+          totalPrice += price;
+        } else {
+          totalPrice -= price;
+        }
+        var totalPriceElement = document.getElementById("total");
+        totalPriceElement.innerText = `Total Price Is : ${totalPrice}`;
+        console.log(totalPrice);
+      }
+
+      function getAllChilds(element) {
+        var children = [].slice.call(element.children),
+          found = 0;
+        while (children.length > found) {
+          children = children.concat([].slice.call(children[found].children));
+          found++;
+        }
+        return children;
+      }
+    </script>
+  </body>
+</html>
